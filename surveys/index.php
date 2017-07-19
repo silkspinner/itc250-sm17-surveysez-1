@@ -10,11 +10,12 @@
  * The only difference is the pager version links to the list pager version to create a 
  * separate application from the original list/view. 
  * 
- * @package nmPager
- * @author Bill Newman <williamnewman@gmail.com>
- * @version 3.02 2011/05/18
- * @link http://www.newmanix.com/
- * @license http://opensource.org/licenses/osl-3.0.php Open Software License ("OSL") v. 3.0
+ * @package SurveySez
+ * @author Ron Nims <rleenims@gmail.com>
+ * @version 0.1 2017/07/17
+ * @link http://www.artdevsign.com/
+ * Copyright [2017] [Ron Nims]
+ * http://www.apache.org/licenses/LICENSE-2.0
  * @see survey_view.php
  * @see Pager.php 
  * @todo none
@@ -24,7 +25,13 @@
 require '../inc_0700/config_inc.php'; #provides configuration, pathing, error handling, db credentials 
  
 # SQL statement
-$sql = "SELECT * FROM sm17_surveys";
+#$sql = "SELECT * FROM sm17_surveys";
+$sql = 
+"
+select CONCAT(a.FirstName, ' ', a.LastName) AdminName, s.SurveyID, s.Title, s.Description, 
+date_format(s.DateAdded, '%W %D %M %Y %H:%i') 'DateAdded' from "
+. PREFIX . "surveys s, " . PREFIX . "Admin a where s.AdminID=a.AdminID order by s.DateAdded desc
+";
 
 #Fills <title> tag. If left empty will default to $PageTitle in config_inc.php  
 $config->titleTag = 'Muffins made with love & PHP in Seattle';
@@ -72,11 +79,36 @@ if(mysqli_num_rows($result) > 0)
 {#records exist - process
 	if($myPager->showTotal()==1){$itemz = "survey";}else{$itemz = "surveys";}  //deal with plural
     echo '<div align="center">We have ' . $myPager->showTotal() . ' ' . $itemz . '!</div>';
+    echo '
+    <table class="table table-striped table-hover ">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Admin Name</th>
+          <th>Title</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+    ';
 	while($row = mysqli_fetch_assoc($result))
 	{# process each row
+        /*
          echo '<div align="center"><a href="' . VIRTUAL_PATH . 'surveys/survey_view.php?id=' . (int)$row['SurveyID'] . '">' . dbOut($row['Title']) . '</a>';
          echo ' </div>';
+         */
+        echo '
+            <tr>
+                <td>' . dbOut($row['AdminName']) . '</td>
+                <td><a href="' . VIRTUAL_PATH . 'surveys/survey_view.php?id=' . (int)$row['SurveyID'] . '">' . dbOut($row['Title']) . '</a></td>
+                <td>' . dbOut($row['DateAdded']) . '</td>
+            </tr>
+            ';
 	}
+    echo '
+      </tbody>
+    </table>
+    ';
 	echo $myPager->showNAV(); # show paging nav, only if enough records	 
 }else{#no records
     echo "<div align=center>There are currently no surveys</div>";	

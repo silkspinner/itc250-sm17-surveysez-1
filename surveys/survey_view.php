@@ -10,11 +10,12 @@
  * The only difference is the pager version links to the list pager version to create a 
  * separate application from the original list/view. 
  * 
- * @package nmPager
- * @author Bill Newman <williamnewman@gmail.com>
- * @version 3.02 2011/05/18
- * @link http://www.newmanix.com/
- * @license http://opensource.org/licenses/osl-3.0.php Open Software License ("OSL") v. 3.0
+ * @package SurveySez
+ * @author Ron Nims <rleenims@gmail.com>
+ * @version 0.1 2017/07/19
+ * @link http://www.artdevsign.com/
+ * Copyright [2017] [Ron Nims]
+ * http://www.apache.org/licenses/LICENSE-2.0
  * @see index.php
  * @todo none
  */
@@ -26,11 +27,11 @@ require '../inc_0700/config_inc.php'; #provides configuration, pathing, error ha
 if(isset($_GET['id']) && (int)$_GET['id'] > 0){#proper data must be on querystring
 	 $myID = (int)$_GET['id']; #Convert to integer, will equate to zero if fails
 }else{
-	myRedirect(VIRTUAL_PATH . "demo/index.php");
+	myRedirect(VIRTUAL_PATH . "surveys/index.php");
 }
 
 //sql statement to select individual item
-$sql = "select MuffinName,Description,MetaDescription,MetaKeywords,Price from test_Muffins where MuffinID = " . $myID;
+$sql = "select Title, Description from sm17_surveys where SurveyID = " . $myID;
 //---end config area --------------------------------------------------
 
 $foundRecord = FALSE; # Will change to true, if record found!
@@ -43,11 +44,8 @@ if(mysqli_num_rows($result) > 0)
 	   $foundRecord = TRUE;	
 	   while ($row = mysqli_fetch_assoc($result))
 	   {
-			$MuffinName = dbOut($row['MuffinName']);
+			$Title = dbOut($row['Title']);
 			$Description = dbOut($row['Description']);
-			$Price = (float)$row['Price'];
-			$MetaDescription = dbOut($row['MetaDescription']);
-			$MetaKeywords = dbOut($row['MetaKeywords']);
 	   }
 }
 
@@ -55,60 +53,25 @@ if(mysqli_num_rows($result) > 0)
 
 if($foundRecord)
 {#only load data if record found
-	$config->titleTag = $MuffinName . " muffins made with PHP & love!"; #overwrite PageTitle with Muffin info!
-	#Fills <meta> tags.  Currently we're adding to the existing meta tags in config_inc.php
-	$config->metaDescription = $MetaDescription . ' Seattle Central\'s ITC280 Class Muffins are made with pure PHP! ' . $config->metaDescription;
-	$config->metaKeywords = $MetaKeywords . ',Muffins,PHP,Fun,Bran,Regular,Regular Expressions,'. $config->metaKeywords;
+	$config->titleTag = $Title . " Surveys made with PHP & love!"; #overwrite PageTitle with Survey info!
 }
-/*
-$config->metaDescription = 'Web Database ITC281 class website.'; #Fills <meta> tags.
-$config->metaKeywords = 'SCCC,Seattle Central,ITC281,database,mysql,php';
-$config->metaRobots = 'no index, no follow';
-$config->loadhead = ''; #load page specific JS
-$config->banner = ''; #goes inside header
-$config->copyright = ''; #goes inside footer
-$config->sidebar1 = ''; #goes inside left side of page
-$config->sidebar2 = ''; #goes inside right side of page
-$config->nav1["page.php"] = "New Page!"; #add a new page to end of nav1 (viewable this page only)!!
-$config->nav1 = array("page.php"=>"New Page!") + $config->nav1; #add a new page to beginning of nav1 (viewable this page only)!!
-*/
+
 # END CONFIG AREA ---------------------------------------------------------- 
 
 get_header(); #defaults to theme header or header_inc.php
-?>
-<h3 align="center"><?=smartTitle();?></h3>
 
-<p>This page, along with <b>index.php</b>, demonstrate a List/View web application.</p>
-<p>It was built on the mysqli shared web application page, <b>demo_shared.php</b></p>
-<p>This page is to be used only with <b>index.php</b>, and is <b>NOT</b> the entry point of the application, meaning this page gets <b>NO</b> link on your web site.</p>
-<p>Use <b>index.php</b> and <b>survey_view.php</b> as a starting point for building your own List/View web application!</p> 
-<?php
-if($foundRecord)
-{#records exist - show muffin!
-?>
-	<h3 align="center">A Yummy <?=$MuffinName;?> Muffin!</h3>
-	<div align="center"><a href="<?=VIRTUAL_PATH;?>demo/index.php">More Muffins?!?</a></div>
-	<table align="center">
-		<tr>
-			<td><img src="<?=VIRTUAL_PATH;?>upload/m<?=$myID;?>.jpg" /></td>
-			<td>We make fresh <?=$MuffinName;?> muffins daily!</td>
-		</tr>
-		<tr>
-			<td colspan="2">
-				<blockquote><?=$Description;?></blockquote>
-			</td>
-		</tr>
-		<tr>
-			<td align="center" colspan="2">
-				<h3><i>ONLY!!:</i> <font color="red">$<?=number_format($Price,2);?></font></h3>
-			</td>
-		</tr>
-	</table>
-<?
-}else{//no such muffin!
-    echo '<div align="center">What! No such muffin? There must be a mistake!!</div>';
-    echo '<div align="center"><a href="' . VIRTUAL_PATH . 'demo/index.php">Another Muffin?</a></div>';
+echo '<h3 align="center">Surveys</h3>';
+
+if($foundRecord) {//records exist - show survey!
+
+echo '<h3 align="center">' . $Title . '</h3>
+    <p>' . $Description . '</p>';
+
+}else{//no such survey!
+    echo '<div align="center">What! No such Survey? There must be a mistake!!</div>';
+    
 }
+echo '<div align="center"><a href="' . VIRTUAL_PATH . 'surveys/index.php">Another Survey?</a></div>';
 
 get_footer(); #defaults to theme footer or footer_inc.php
 ?>
