@@ -31,9 +31,13 @@ if(isset($_GET['id']) && (int)$_GET['id'] > 0){#proper data must be on querystri
 }
 
 //sql statement to select individual item
-$sql = "select Title, Description from sm17_surveys where SurveyID = " . $myID;
+//$sql = "select Title, Description from sm17_surveys where SurveyID = " . $myID;
 //---end config area --------------------------------------------------
 
+$mySurvey = new Survey($myID);
+dumpDie($mySurvey);
+
+/*
 $foundRecord = FALSE; # Will change to true, if record found!
    
 # connection comes first in mysqli (improved) function
@@ -50,6 +54,7 @@ if(mysqli_num_rows($result) > 0)
 }
 
 @mysqli_free_result($result); # We're done with the data!
+*/
 
 if($foundRecord)
 {#only load data if record found
@@ -74,4 +79,33 @@ echo '<h3 align="center">' . $Title . '</h3>
 echo '<div align="center"><a href="' . VIRTUAL_PATH . 'surveys/index.php">Another Survey?</a></div>';
 
 get_footer(); #defaults to theme footer or footer_inc.php
-?>
+
+class Survey
+{
+    public $SurveyID = 0;
+    public $Title = "";
+    public $Description = "";
+    public $IsValid = false;
+    
+    public function __construct($id)
+    {
+        $id = (int)$id; //cast to integer disallows SQL injection
+        $sql = "select Title, Description from sm17_surveys where SurveyID = " . $id;
+        $foundRecord = FALSE; # Will change to true, if record found!
+
+        # connection comes first in mysqli (improved) function
+        $result = mysqli_query(IDB::conn(),$sql) or die(trigger_error(mysqli_error(IDB::conn()), E_USER_ERROR));
+
+        if(mysqli_num_rows($result) > 0)
+        {#records exist - process
+            $this->IsValid = true; // survey found
+            while ($row = mysqli_fetch_assoc($result))
+            {
+                $this->Title = dbOut($row['Title']);
+                $this->Description = dbOut($row['Description']);
+            }
+        }
+        @mysqli_free_result($result); # We're done with the data!
+
+    }  // END Survey constructor  
+} // END Survey class
